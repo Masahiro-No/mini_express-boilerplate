@@ -1,58 +1,65 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
+export type MedicineWithItems = Prisma.MedicineGetPayload<{ include: { items: true } }>;
+
+export type MedicineWithItemsAndPrescription = Prisma.MedicineGetPayload<{
+	include: { items: { include: { prescription: true } } };
+}>;
+
 export class MedicineRepository {
-  list() {
-    return prisma.medicine.findMany({
-      orderBy: { id: "asc" },
-      include: {
-        items: { where: { deletedAt: null } },
-      },
-    });
-  }
+	async countMedicines() {
+		return prisma.medicine.count();
+	}
 
-  findById(id: string) {
-    return prisma.medicine.findUnique({
-      where: { id },
-      include: {
-        items: {
-          include: { prescription: true },
-        },
-      },
-    });
-  }
+	async listMedicines(skip: number, take: number) {
+		return prisma.medicine.findMany({
+			include: { items: { where: { deletedAt: null } } },
+			orderBy: [{ id: "asc" }],
+			skip,
+			take,
+		});
+	}
 
-  create(data: any) {
-    return prisma.medicine.create({ data });
-  }
+	async findMedicineById(id: string) {
+		return prisma.medicine.findUnique({
+			where: { id },
+			include: { items: { include: { prescription: true } } },
+		});
+	}
 
-  update(id: string, data: any) {
-    return prisma.medicine.update({
-      where: { id },
-      data,
-      include: { items: { include: { prescription: true } } },
-    });
-  }
+	async createMedicine(data: Prisma.MedicineCreateInput) {
+		return prisma.medicine.create({
+			data,
+			include: { items: { include: { prescription: true } } },
+		});
+	}
 
-  async deleteHardAndSoftItems(medicineId: string) {
-    const exist = await prisma.medicine.findUnique({
-      where: { id: medicineId }, select: { id: true }
-    });
-    if (!exist) {
-      const err: any = new Error("Medicine not found");
-      err.code = "NOT_FOUND";
-      throw err;
-    }
+	async updateMedicine(id: string, data: Prisma.MedicineUpdateInput) {
+		return prisma.medicine.update({
+			where: { id },
+			data,
+			include: { items: { include: { prescription: true } } },
+		});
+	}
 
-    const now = new Date();
-    const result = await prisma.$transaction(async (tx) => {
-      const softRes = await tx.prescriptionItem.updateMany({
-        where: { medicineId, deletedAt: null },
-        data: { deletedAt: now },
-      });
-      await tx.medicine.delete({ where: { id: medicineId } });
-      return { softDeletedItemCount: softRes.count };
-    });
+	async deleteMedicineCascade(id: string) {
+		const exists = await prisma.medicine.findUnique({ where: { id }, select: { id: true } });
+		if (!exists) {
+			const err = new Error("Not found") as Error & { status?: number; code?: string };
+			err.status = 404;
+			err.code = "NOT_FOUND";
+			throw err;
+		}
 
-    return { medicineId, ...result };
-  }
+		const now = new Date();
+		return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+			await tx.prescriptionItem.updateMany({
+				where: { medicineId: id, deletedAt: null },
+				data: { deletedAt: now },
+			});
+			await tx.medicine.delete({ where: { id } });
+			return { message: "Deleted successfully" };
+		});
+	}
 }
