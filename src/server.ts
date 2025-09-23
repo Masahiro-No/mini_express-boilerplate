@@ -11,7 +11,7 @@ import rateLimiter from "@/common/middleware/rateLimiter";
 import requestLogger from "@/common/middleware/requestLogger";
 import { env } from "@/common/utils/envConfig";
 
-import prescriptionRouter from "./api/prescription/prescriptionRouter";
+import { prescriptionRouter } from "./api/prescription/prescriptionRouter";
 
 import { medicineRouter } from "@/api/medicine/medicineRouter";
 
