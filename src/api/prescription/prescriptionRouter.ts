@@ -4,7 +4,7 @@ import * as controller from "./prescriptionController";
 const router = Router();
 
 // === จาก api/prescription/route.ts (เดิม) ===
-router.get("/", controller.listPrescriptions); // GET /api/prescriptions?page=&pageSize=
+router.get("/", controller.listPrescriptionsMetadata); // GET /api/prescriptions?page=&pageSize=
 router.post("/", controller.createPrescription); // POST /api/prescriptions
 
 // === จาก src/app/prescription/[id]/route.ts (เดิม) ===
