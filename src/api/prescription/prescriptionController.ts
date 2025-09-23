@@ -46,8 +46,8 @@ class PrescriptionController {
 	public getPrescriptionByPage: RequestHandler = async (req: Request, res: Response) => {
 		const page = Number.parseInt(req.query.page as string, 10) || 1;
 		const pageSize = Number.parseInt(req.query.pageSize as string, 10) || 10;
-		const serviceResponse = await prescriptionService.listWithMeta({ page, pageSize });
-		res.status(200).send(serviceResponse);
+		const prescriptionBypage = await prescriptionService.listWithMeta({ page, pageSize });
+		res.status(200).send(prescriptionBypage);
 	};
 	public createPrescription: RequestHandler = async (req: Request, res: Response) => {
 		try {

@@ -90,9 +90,9 @@ export class PrescriptionService {
 	constructor(repository: PrescriptionRepository = new PrescriptionRepository()) {
 		this.prescriptionRepository = repository;
 	}
-	async listWithMeta(q: { page: number; pageSize: number }) {
-		const page = Math.max(q.page || 1, 1);
-		const pageSize = Math.min(Math.max(q.pageSize || 10, 1), 100);
+	async listWithMeta(req: { page: number; pageSize: number }) {
+		const page = Math.max(req.page || 1, 1);
+		const pageSize = Math.min(Math.max(req.pageSize || 10, 1), 100);
 		const skip = (page - 1) * pageSize;
 		const [total, data] = await Promise.all([
 			this.prescriptionRepository.countPrescriptions(),
