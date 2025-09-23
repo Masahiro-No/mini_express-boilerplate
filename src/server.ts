@@ -13,6 +13,8 @@ import { env } from "@/common/utils/envConfig";
 
 import prescriptionRouter from "./api/prescription/prescriptionRouter";
 
+import { medicineRouter } from "@/api/medicine/medicineRouter";
+
 const logger = pino({ name: "server start" });
 const app: Express = express();
 
@@ -33,7 +35,7 @@ app.use(requestLogger);
 app.use("/health-check", healthCheckRouter);
 app.use("/users", userRouter);
 app.use("/api/prescriptions", prescriptionRouter);
-
+app.use("/api/medicines", medicineRouter);
 // Swagger UI
 app.use(openAPIRouter);
 
