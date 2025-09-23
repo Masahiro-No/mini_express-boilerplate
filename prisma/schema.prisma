@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Medicine {
+  id            String             @id @default(uuid()) @db.Uuid
+  medicineCode  String             @unique
+  nameEN        String
+  nameTH        String
+  catagory      String
+  amount        Decimal            @default(0) @db.Decimal(10, 2)
+  current_price Decimal            @default(0) @map("current_price") @db.Decimal(10, 2)
+  advice        String? // optional
+  items         PrescriptionItem[] // one-to-many
+
+  @@map("Medicine")
+}
+
+model PrescriptionItem {
+  id String @id @default(uuid()) @db.Uuid
+
+  // ทำให้ลบ Medicine ได้โดยไม่ชน FK: ให้ NULL ได้ + ตั้ง onDelete: SetNull
+  medicineId     String? @map("medicineListed") @db.Uuid
+  prescriptionId String  @map("prescription") @db.Uuid
+
+  instruction String? // optional
+  amount      Decimal @default(0) @db.Decimal(10, 2)
+  price       Decimal @default(0) @db.Decimal(10, 2)
+
+  // ใช้ชื่อ camelCase ในโค้ด แต่ map ไปคอลัมน์เดิมชื่อ deleteAT
+  deletedAt DateTime? @map("deleteAT")
+
+  // relations
+  medicine     Medicine?    @relation(fields: [medicineId], references: [id], onDelete: SetNull)
+  prescription Prescription @relation(fields: [prescriptionId], references: [id])
+
+  @@index([prescriptionId])
+  @@index([medicineId])
+  @@map("PrescriptionItem")
+}
+
+model Prescription {
+  id           String   @id @default(uuid()) @db.Uuid
+  name_patient String
+  name_docter  String
+  date         DateTime @db.Date
+
+  items PrescriptionItem[] // one-to-many
+
+  @@map("Prescription")
+}

@@ -1,0 +1,29 @@
+
+services:
+  db:
+    image: postgres
+    container_name: expres_med
+    restart: always
+    environment:
+      POSTGRES_USER: myuser # ตั้งชื่อ user
+      POSTGRES_PASSWORD: mypassword # ตั้งรหัสผ่าน
+      POSTGRES_DB: mydatabase # ตั้งชื่อ database
+    ports:
+      - "5431:5432"
+    volumes:
+      - expres_med_db_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: expres_med_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com # email ไว้ล็อกอิน
+      PGADMIN_DEFAULT_PASSWORD: admin123 # password ไว้ล็อกอิน
+    ports:
+      - "5051:80" # เข้าได้ที่ http://localhost:5051
+    depends_on:
+      - db
+
+volumes:
+  expres_med_db_data:
