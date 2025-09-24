@@ -13,17 +13,15 @@
 
 // export default router;
 
-// ยังไม่ได้ทำ validateRequest
 import { OpenAPIRegistry } from "@asteasolutions/zod-to-openapi";
 import express, { type Router } from "express";
 import { z } from "zod";
 import {
-	CreatePrescriptionItemInputSchema,
 	CreatePrescriptionSchema,
 	PrescriptionCreateReqSchema,
-	PrescriptionGetByIdReqSchema,
 	PrescriptionIdParamSchema,
 	PrescriptionListReqSchema,
+	PrescriptionListResSchema,
 } from "@/api/prescription/prescriptionModel";
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
 import { validateRequest } from "@/common/utils/httpHandlers";
@@ -32,13 +30,13 @@ import { prescriptionController } from "./prescriptionController";
 export const prescriptionRegistry = new OpenAPIRegistry();
 export const prescriptionRouter: Router = express.Router();
 
-prescriptionRegistry.register("CreatePrescriptionItemInput", CreatePrescriptionItemInputSchema);
+// prescriptionRegistry.register("CreatePrescriptionItemInput", CreatePrescriptionItemInputSchema);
 prescriptionRegistry.registerPath({
 	method: "get",
 	path: "/prescriptions",
 	tags: ["Prescription"],
 	request: { query: PrescriptionListReqSchema.shape.query },
-	responses: createApiResponse(z.array(CreatePrescriptionItemInputSchema), "Success"),
+	responses: createApiResponse(z.array(PrescriptionListResSchema), "Success"),
 });
 
 prescriptionRouter.get("/", validateRequest(PrescriptionListReqSchema), prescriptionController.getPrescriptionByPage);
@@ -58,7 +56,7 @@ prescriptionRegistry.registerPath({
 	path: "/prescriptions/{id}",
 	tags: ["Prescription"],
 	request: {
-		params: z.object({ id: z.string() }),
+		params: PrescriptionIdParamSchema.shape.params,
 	},
 	responses: createApiResponse(CreatePrescriptionSchema, "Get by ID Success"),
 });
@@ -69,12 +67,14 @@ prescriptionRegistry.registerPath({
 	method: "delete",
 	path: "/prescriptions/{id}",
 	tags: ["Prescription"],
-	request: { params: z.object({ id: z.string() }) },
+	request: {
+		params: PrescriptionIdParamSchema.shape.params,
+	},
 	responses: createApiResponse(z.object({ message: z.string() }), "Deleted by ID Success"),
 });
 
 prescriptionRouter.delete(
 	"/:id",
-	validateRequest(PrescriptionGetByIdReqSchema),
+	validateRequest(PrescriptionIdParamSchema),
 	prescriptionController.deletePrescription,
 );

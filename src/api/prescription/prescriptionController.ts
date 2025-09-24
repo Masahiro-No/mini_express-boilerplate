@@ -40,18 +40,25 @@
 // }
 
 import type { Request, RequestHandler, Response } from "express";
+import {
+	PrescriptionCreateReqSchema,
+	PrescriptionIdParamSchema,
+	PrescriptionListReqSchema,
+} from "@/api/prescription/prescriptionModel";
 import { prescriptionService } from "@/api/prescription/prescriptionService";
 
 class PrescriptionController {
 	public getPrescriptionByPage: RequestHandler = async (req: Request, res: Response) => {
-		const page = Number.parseInt(req.query.page as string, 10) || 1;
-		const pageSize = Number.parseInt(req.query.pageSize as string, 10) || 10;
+		// const page = Number.parseInt(req.query.page as string, 10) || 1;
+		// const pageSize = Number.parseInt(req.query.pageSize as string, 10) || 10;
+		const { page, pageSize } = PrescriptionListReqSchema.shape.query.parse(req.query);
 		const prescriptionBypage = await prescriptionService.listWithMeta({ page, pageSize });
 		res.status(200).send(prescriptionBypage);
 	};
 	public createPrescription: RequestHandler = async (req: Request, res: Response) => {
 		try {
-			const created = await prescriptionService.createFromBody(req.body);
+			const body = PrescriptionCreateReqSchema.shape.body.parse(req.body);
+			const created = await prescriptionService.createFromBody(body);
 			return res.status(201).json(created);
 		} catch (e: unknown) {
 			console.error(e);
@@ -60,7 +67,8 @@ class PrescriptionController {
 	};
 	public getPrescriptionById: RequestHandler = async (req: Request, res: Response) => {
 		try {
-			const pres = await prescriptionService.getPrescriptionById(req.params.id);
+			const id = PrescriptionIdParamSchema.shape.params.parse(req.params).id;
+			const pres = await prescriptionService.getPrescriptionById(id);
 			return res.json(pres);
 		} catch (e: unknown) {
 			const status = (e as Error & { status?: number })?.status ?? 500;
@@ -69,7 +77,8 @@ class PrescriptionController {
 	};
 	public deletePrescription: RequestHandler = async (req: Request, res: Response) => {
 		try {
-			const out = await prescriptionService.deleteById(req.params.id);
+			const id = PrescriptionIdParamSchema.shape.params.parse(req.params).id;
+			const out = await prescriptionService.deleteById(id);
 			return res.json(out);
 		} catch (e: unknown) {
 			const status = (e as Error & { status?: number })?.status ?? 400;

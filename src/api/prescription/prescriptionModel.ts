@@ -62,16 +62,17 @@ export const PaginationQuerySchema = z.object({
 	),
 });
 
-export interface PaginationMeta {
-	page: number;
-	pageSize: number;
-	total: number;
-	totalPages: number;
-	hasPrev: boolean;
-	hasNext: boolean;
-}
+export const PaginationMetaSchema = z.object({
+	page: z.number().int().min(1),
+	pageSize: z.number().int().min(1),
+	total: z.number().int().min(0),
+	totalPages: z.number().int().min(0),
+});
 
 export const PrescriptionListReqSchema = z.object({ query: PaginationQuerySchema });
 export const PrescriptionCreateReqSchema = z.object({ body: CreatePrescriptionSchema });
 export const PrescriptionIdParamSchema = z.object({ params: z.object({ id: z.string() }) });
-export const PrescriptionGetByIdReqSchema = z.object({ params: z.object({ id: z.string() }) });
+export const PrescriptionListResSchema = z.object({
+	data: z.array(CreatePrescriptionSchema),
+	meta: PaginationMetaSchema,
+});
