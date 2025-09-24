@@ -81,7 +81,7 @@
 // 	}
 // }
 
-import type { CreatePrescriptionInput } from "@/api/prescription/prescriptionModel";
+import type { CreatePrescriptionInput, CreatePrescriptionItemInput } from "@/api/prescription/prescriptionModel";
 import { PrescriptionRepository } from "./prescriptionRepository";
 
 export class PrescriptionService {
@@ -109,19 +109,15 @@ export class PrescriptionService {
 		return { data, meta };
 	}
 	async createFromBody(body: CreatePrescriptionInput) {
-		// ดึง medicine ทั้งหมดที่อ้างใน items มาก่อน
-		const codes = (body.items ?? []).map((it) => it.medicineCode);
+		const items: CreatePrescriptionItemInput[] = body.items ?? [];
+
+		const codes = items.map((it) => it.medicineCode);
 		const medicines = await this.prescriptionRepository.findMedicinesByCodes(codes);
+		const codeToMedicine = Object.fromEntries(medicines.map((m) => [m.medicineCode, m]));
 
-		// map code -> medicine
-		const codeToMedicine: Record<string, (typeof medicines)[number]> = {};
-		for (const m of medicines) codeToMedicine[m.medicineCode] = m;
-
-		// เตรียม items สำหรับ create
-		const itemsData = (body.items ?? []).map((it) => {
+		const itemsData = items.map((it) => {
 			const med = codeToMedicine[it.medicineCode];
 			if (!med) throw new Error(`ไม่พบ medicineCode: ${it.medicineCode}`);
-			if (it.amount === undefined || it.amount === null) throw new Error(`ต้องกำหนด amount ของ ${it.medicineCode}`);
 
 			return {
 				medicine: { connect: { id: med.id } },
@@ -131,14 +127,12 @@ export class PrescriptionService {
 			};
 		});
 
-		const created = await this.prescriptionRepository.createPrescription({
+		return this.prescriptionRepository.createPrescription({
 			name_patient: body.name_patient,
 			name_docter: body.name_docter,
 			date: body.date ? new Date(body.date) : new Date(),
 			items: { create: itemsData },
 		});
-
-		return created;
 	}
 	async getPrescriptionById(id: string) {
 		const pres = await this.prescriptionRepository.findPrescriptionById(id);
