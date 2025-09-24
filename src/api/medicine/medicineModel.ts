@@ -64,3 +64,15 @@ export const MedicineUpdateReqSchema = z.object({
 	params: z.object({ id: z.string().uuid() }),
 	body: UpdateMedicineSchema,
 });
+
+export const MedicineSchema = z.object({
+	data: z.array(MedicineReadSchema),
+	meta: z.object({
+		page: z.number(),
+		pageSize: z.number(),
+		total: z.number(),
+		totalPages: z.number(),
+		hasPrev: z.boolean(),
+		hasNext: z.boolean(),
+	}),
+});

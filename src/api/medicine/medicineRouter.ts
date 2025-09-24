@@ -8,7 +8,7 @@ import {
 	MedicineCreateReqSchema,
 	MedicineIdParamSchema,
 	MedicineListReqSchema,
-	MedicineReadSchema, // <-- นำเข้าจาก model
+	MedicineReadSchema,
 	MedicineUpdateReqSchema,
 	UpdateMedicineSchema,
 } from "@/api/medicine/medicineModel";
@@ -24,21 +24,9 @@ medicineRegistry.registerPath({
 	path: "/medicines",
 	tags: ["Medicine"],
 	request: { query: MedicineListReqSchema.shape.query },
-	responses: createApiResponse(
-		z.object({
-			data: z.array(MedicineReadSchema),
-			meta: z.object({
-				page: z.number(),
-				pageSize: z.number(),
-				total: z.number(),
-				totalPages: z.number(),
-				hasPrev: z.boolean(),
-				hasNext: z.boolean(),
-			}),
-		}),
-		"Success",
-	),
+	responses: createApiResponse(z.array(MedicineReadSchema), "success"),
 });
+
 medicineRouter.get("/", validateRequest(MedicineListReqSchema), medicineController.getByPage);
 
 /** POST /medicines */
