@@ -72,3 +72,6 @@ export interface PaginationMeta {
 }
 
 export const PrescriptionListReqSchema = z.object({ query: PaginationQuerySchema });
+export const PrescriptionCreateReqSchema = z.object({ body: CreatePrescriptionSchema });
+export const PrescriptionIdParamSchema = z.object({ params: z.object({ id: z.string() }) });
+export const PrescriptionGetByIdReqSchema = z.object({ params: z.object({ id: z.string() }) });
