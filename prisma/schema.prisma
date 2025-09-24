@@ -58,3 +58,51 @@ model Prescription {
 
   @@map("Prescription")
 }
+
+// model Room {
+//   id          String   @id @default(uuid()) @db.Uuid
+//   name        String
+//   roomCode    String   @unique
+//   description String?
+//   createdAt   DateTime @default(now()) @map("createdAT")
+//   updatedAt   DateTime @updatedAt @map("updatedAT")
+// }
+
+// model Zone {
+//   id          String   @id @default(uuid()) @db.Uuid
+//   roomId      String   @map("room") @db.Uuid
+//   name        String
+//   description String?
+//   createdAt   DateTime @default(now()) @map("createdAT")
+//   updatedAt   DateTime @updatedAt @map("updatedAT")
+// }
+
+// model Rack {
+//   id          String   @id @default(uuid()) @db.Uuid
+//   zoneId      String   @map("zone") @db.Uuid
+//   rackCode    String   @unique
+//   name        String
+//   description String?
+//   createdAt   DateTime @default(now()) @map("createdAT")
+//   updatedAt   DateTime @updatedAt @map("updatedAT")
+// }
+
+// model Shelf {
+//   id          String   @id @default(uuid()) @db.Uuid
+//   rackId      String   @map("rack") @db.Uuid
+//   shelfCode   String   @unique
+//   name        String
+//   description String?
+//   medicineId  String   @map("medicine") @db.Uuid
+//   createdAt   DateTime @default(now()) @map("createdAT")
+//   updatedAt   DateTime @updatedAt @map("updatedAT")
+// }
+
+// model ShelfBatch {
+//   id        String   @id @default(uuid()) @db.Uuid
+//   shelfId   String   @map("shelf") @db.Uuid
+//   // medicineBatch String   @map("medicineBatch") @db.Uuid
+//   quantity  Int      @default(0)
+//   createdAt DateTime @default(now()) @map("createdAT")
+//   updatedAt DateTime @updatedAt @map("updatedAT")
+// }

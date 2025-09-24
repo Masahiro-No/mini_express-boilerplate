@@ -46,10 +46,10 @@ export type CreatePrescriptionInput = z.infer<typeof CreatePrescriptionSchema>;
 export const CreatePrescriptionSchema = z.object({
 	name_patient: z.string().min(1).max(200),
 	name_docter: z.string().min(1).max(200),
-	date: z.preprocess((val) => {
-		if (typeof val === "string" || val instanceof Date) return new Date(val);
-		return new Date();
-	}, z.date()),
+	// date: z.preprocess((val) => {
+	// 	if (typeof val === "string" || val instanceof Date) return new Date(val);
+	// 	return new Date();
+	// }, z.date()),
 	items: z.array(CreatePrescriptionItemInputSchema).min(1),
 });
 

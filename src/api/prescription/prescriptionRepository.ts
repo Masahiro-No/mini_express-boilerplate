@@ -6,7 +6,6 @@ export const prescription: CreatePrescriptionInput[] = [
 	{
 		name_patient: "John Doe",
 		name_docter: "Dr. Smith",
-		date: new Date(),
 		items: [
 			{
 				medicineCode: "MED123",

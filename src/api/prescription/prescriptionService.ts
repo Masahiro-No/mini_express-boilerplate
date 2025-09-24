@@ -130,7 +130,7 @@ export class PrescriptionService {
 		return this.prescriptionRepository.createPrescription({
 			name_patient: body.name_patient,
 			name_docter: body.name_docter,
-			date: body.date ? new Date(body.date) : new Date(),
+			date: new Date(),
 			items: { create: itemsData },
 		});
 	}
