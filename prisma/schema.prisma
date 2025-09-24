@@ -21,6 +21,7 @@ model Medicine {
   current_price Decimal            @default(0) @map("current_price") @db.Decimal(10, 2)
   advice        String? // optional
   items         PrescriptionItem[] // one-to-many
+  // shelves       Shelf[]            // relation to Shelf
 
   @@map("Medicine")
 }
@@ -52,7 +53,10 @@ model Prescription {
   id           String   @id @default(uuid()) @db.Uuid
   name_patient String
   name_docter  String
-  date         DateTime @db.Date
+  date         DateTime @db.Date //@default(now()) @db.Timestamptz   // เวลา ณ ขณะสร้าง (UTC)
+  // createdAt    DateTime @default(now()) @map("createdAT") @db.Timestamptz
+  // updatedAt    DateTime? @updatedAt @map("updatedAT") @db.Timest //null ได้เพราะอาจยังไม่เคยอัพเดต
+  // status      String  @default("active") // active, cancelled, updated, completed
 
   items PrescriptionItem[] // one-to-many
 
@@ -66,6 +70,7 @@ model Prescription {
 //   description String?
 //   createdAt   DateTime @default(now()) @map("createdAT")
 //   updatedAt   DateTime @updatedAt @map("updatedAT")
+//   zones       Zone[]
 // }
 
 // model Zone {
@@ -75,6 +80,9 @@ model Prescription {
 //   description String?
 //   createdAt   DateTime @default(now()) @map("createdAT")
 //   updatedAt   DateTime @updatedAt @map("updatedAT")
+//   racks       Rack[]
+
+//   room Room @relation(fields: [roomId], references: [id])
 // }
 
 // model Rack {
@@ -85,17 +93,23 @@ model Prescription {
 //   description String?
 //   createdAt   DateTime @default(now()) @map("createdAT")
 //   updatedAt   DateTime @updatedAt @map("updatedAT")
+//   shelves     Shelf[]
+
+//   zone Zone @relation(fields: [zoneId], references: [id])
 // }
 
 // model Shelf {
-//   id          String   @id @default(uuid()) @db.Uuid
-//   rackId      String   @map("rack") @db.Uuid
-//   shelfCode   String   @unique
+//   id          String       @id @default(uuid()) @db.Uuid
+//   rackId      String       @map("rack") @db.Uuid
+//   shelfCode   String       @unique
 //   name        String
 //   description String?
-//   medicineId  String   @map("medicine") @db.Uuid
-//   createdAt   DateTime @default(now()) @map("createdAT")
-//   updatedAt   DateTime @updatedAt @map("updatedAT")
+//   medicineId  String       @map("medicine") @db.Uuid
+//   createdAt   DateTime     @default(now()) @map("createdAT")
+//   updatedAt   DateTime     @updatedAt @map("updatedAT")
+//   batches     ShelfBatch[]
+//   rack        Rack         @relation(fields: [rackId], references: [id])
+//   // medicine   Medicine @relation(fields: [medicineId], references: [id])
 // }
 
 // model ShelfBatch {
@@ -105,4 +119,7 @@ model Prescription {
 //   quantity  Int      @default(0)
 //   createdAt DateTime @default(now()) @map("createdAT")
 //   updatedAt DateTime @updatedAt @map("updatedAT")
+
+//   shelf Shelf @relation(fields: [shelfId], references: [id])
+//   // medicineBatch MedicineBatch @relation(fields: [medicineBatch], references: [id])
 // }
