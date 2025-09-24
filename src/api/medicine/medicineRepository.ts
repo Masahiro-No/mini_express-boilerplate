@@ -2,7 +2,6 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export type MedicineWithItems = Prisma.MedicineGetPayload<{ include: { items: true } }>;
-
 export type MedicineWithItemsAndPrescription = Prisma.MedicineGetPayload<{
 	include: { items: { include: { prescription: true } } };
 }>;

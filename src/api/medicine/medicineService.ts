@@ -24,7 +24,7 @@ export class MedicineService {
 			page,
 			pageSize,
 			total,
-			totalPages: Math.ceil(total / pageSize),
+			totalPages: Math.max(1, Math.ceil(total / pageSize)),
 			hasPrev: page > 1,
 			hasNext: page * pageSize < total,
 		};
