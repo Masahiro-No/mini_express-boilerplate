@@ -1,72 +1,51 @@
-import { Prisma } from "@prisma/client";
-import type { RequestHandler } from "express";
-import {
-	type CreateMedicineInput,
-	CreateMedicineSchema,
-	MedicineListReqSchema,
-	MedicineUpdateReqSchema,
-	type UpdateMedicineInput,
-} from "./medicineModel";
-import { medicineService } from "./medicineService";
+import type { Request, RequestHandler, Response } from "express";
+import { medicineService } from "@/api/medicine/medicineService";
 
 class MedicineController {
-	// GET /api/medicines?page=&pageSize=
-	public getByPage: RequestHandler = async (req, res) => {
-		const { page, pageSize } = MedicineListReqSchema.shape.query.parse(req.query);
-		const out = await medicineService.listWithMeta({ page, pageSize });
-		res.status(200).json(out);
+	public getByPage: RequestHandler = async (req: Request, res: Response) => {
+		const page = Number.parseInt(req.query.page as string, 10) || 1;
+		const pageSize = Number.parseInt(req.query.pageSize as string, 10) || 10;
+		const result = await medicineService.listWithMeta({ page, pageSize });
+		res.status(200).json(result);
 	};
 
-	// POST /api/medicines
-	public create: RequestHandler<unknown, unknown, CreateMedicineInput> = async (req, res) => {
+	public create: RequestHandler = async (req: Request, res: Response) => {
 		try {
-			const body = CreateMedicineSchema.parse(req.body);
-			const created = await medicineService.createFromBody(body);
-			res.status(201).json(created);
+			const created = await medicineService.createFromBody(req.body);
+			return res.status(201).json(created);
 		} catch (e: unknown) {
-			if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-				return res.status(409).json({ error: "medicineCode already exists" });
-			}
-			const err = e as Error & { status?: number };
-			res.status(err.status ?? 400).json({ error: err.message ?? "create failed" });
+			const status = (e as Error & { status?: number })?.status ?? 400;
+			return res.status(status).json({ error: (e as Error)?.message ?? "Create failed" });
 		}
 	};
 
-	// GET /api/medicines/:id
-	public getById: RequestHandler<{ id: string }> = async (req, res) => {
+	public getById: RequestHandler = async (req: Request, res: Response) => {
 		try {
 			const med = await medicineService.getById(req.params.id);
-			res.json(med);
+			return res.json(med);
 		} catch (e: unknown) {
-			const err = e as Error & { status?: number };
-			res.status(err.status ?? 500).json({ error: err.message ?? "fetch failed" });
+			const status = (e as Error & { status?: number })?.status ?? 404;
+			return res.status(status).json({ error: (e as Error)?.message ?? "Fetch failed" });
 		}
 	};
 
-	// PATCH /api/medicines/:id
-	public update: RequestHandler<{ id: string }, unknown, UpdateMedicineInput> = async (req, res) => {
+	public update: RequestHandler = async (req: Request, res: Response) => {
 		try {
-			// ตรวจ params+body ด้วย Zod
-			const { params, body } = MedicineUpdateReqSchema.parse({ params: req.params, body: req.body });
-			const updated = await medicineService.updateById(params.id, body);
-			res.json(updated);
+			const updated = await medicineService.updateById(req.params.id, req.body);
+			return res.json(updated);
 		} catch (e: unknown) {
-			if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
-				return res.status(404).json({ error: "ไม่พบข้อมูล Medicine ที่ต้องการอัปเดต" });
-			}
-			const err = e as Error & { status?: number };
-			res.status(err.status ?? 400).json({ error: err.message ?? "update failed" });
+			const status = (e as Error & { status?: number })?.status ?? 400;
+			return res.status(status).json({ error: (e as Error)?.message ?? "Update failed" });
 		}
 	};
 
-	// DELETE /api/medicines/:id
-	public delete: RequestHandler<{ id: string }> = async (req, res) => {
+	public delete: RequestHandler = async (req: Request, res: Response) => {
 		try {
 			const out = await medicineService.deleteById(req.params.id);
-			res.json(out);
+			return res.json(out);
 		} catch (e: unknown) {
-			const err = e as Error & { status?: number };
-			res.status(err.status ?? 400).json({ error: err.message ?? "delete failed" });
+			const status = (e as Error & { status?: number })?.status ?? 400;
+			return res.status(status).json({ error: (e as Error)?.message ?? "Delete failed" });
 		}
 	};
 }

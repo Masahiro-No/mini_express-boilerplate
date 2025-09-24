@@ -8,6 +8,7 @@ import {
 	MedicineCreateReqSchema,
 	MedicineIdParamSchema,
 	MedicineListReqSchema,
+	MedicineReadSchema, // <-- นำเข้าจาก model
 	MedicineUpdateReqSchema,
 	UpdateMedicineSchema,
 } from "@/api/medicine/medicineModel";
@@ -17,32 +18,7 @@ import { validateRequest } from "@/common/utils/httpHandlers";
 export const medicineRegistry = new OpenAPIRegistry();
 export const medicineRouter: Router = express.Router();
 
-// (optional) สคีมาสำหรับ read/response
-const MedicineReadSchema = CreateMedicineSchema.extend({
-	id: z.string().uuid(),
-	items: z
-		.array(
-			z.object({
-				id: z.string().uuid(),
-				prescriptionId: z.string().uuid(),
-				instruction: z.string().nullable().optional(),
-				amount: z.number(), // ถ้าคุณ serialize Decimal → number/ string ปรับตามจริง
-				price: z.number(),
-				// ถ้าคืน prescription ด้วยก็ใส่ต่อ:
-				prescription: z
-					.object({
-						id: z.string().uuid(),
-						name_patient: z.string(),
-						name_docter: z.string(),
-						date: z.string().or(z.date()), // แล้วแต่ format ที่คุณ serialize
-					})
-					.optional(),
-			}),
-		)
-		.optional(),
-});
-
-// GET /medicines
+/** GET /medicines */
 medicineRegistry.registerPath({
 	method: "get",
 	path: "/medicines",
@@ -65,7 +41,7 @@ medicineRegistry.registerPath({
 });
 medicineRouter.get("/", validateRequest(MedicineListReqSchema), medicineController.getByPage);
 
-// POST /medicines
+/** POST /medicines */
 medicineRegistry.registerPath({
 	method: "post",
 	path: "/medicines",
@@ -75,7 +51,7 @@ medicineRegistry.registerPath({
 });
 medicineRouter.post("/", validateRequest(MedicineCreateReqSchema), medicineController.create);
 
-// GET /medicines/:id
+/** GET /medicines/:id */
 medicineRegistry.registerPath({
 	method: "get",
 	path: "/medicines/{id}",
@@ -85,7 +61,7 @@ medicineRegistry.registerPath({
 });
 medicineRouter.get("/:id", validateRequest(MedicineIdParamSchema), medicineController.getById);
 
-// PATCH /medicines/:id
+/** PATCH /medicines/:id */
 medicineRegistry.registerPath({
 	method: "patch",
 	path: "/medicines/{id}",
@@ -98,7 +74,7 @@ medicineRegistry.registerPath({
 });
 medicineRouter.patch("/:id", validateRequest(MedicineUpdateReqSchema), medicineController.update);
 
-// DELETE /medicines/:id
+/** DELETE /medicines/:id */
 medicineRegistry.registerPath({
 	method: "delete",
 	path: "/medicines/{id}",

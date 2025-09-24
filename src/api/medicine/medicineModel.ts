@@ -3,6 +3,7 @@ import { commonValidations } from "@/common/utils/commonValidation";
 
 const decimalPositive = commonValidations.decimalPositive;
 
+/** ---------- Input Schemas ---------- */
 export const CreateMedicineItemInputSchema = z.object({
 	prescriptionId: z.string().uuid(),
 	instruction: z.string().max(500).optional().nullable(),
@@ -28,13 +29,34 @@ export const PaginationQuerySchema = z.object({
 	pageSize: z.preprocess((v) => (typeof v === "string" ? Number(v) : v), z.number().min(1).max(100).default(10)),
 });
 
-// ---- Types ----
+/** ---------- Read/Response Schemas ---------- */
+export const MedicineItemReadSchema = z.object({
+	id: z.string().uuid(),
+	instruction: z.string().nullable().optional(),
+	amount: z.number(),
+	price: z.number(),
+	prescription: z
+		.object({
+			id: z.string().uuid(),
+			name_patient: z.string(),
+			name_docter: z.string(),
+			date: z.string().or(z.date()),
+		})
+		.optional(),
+});
+
+export const MedicineReadSchema = CreateMedicineSchema.extend({
+	id: z.string().uuid(),
+	items: z.array(MedicineItemReadSchema).optional(),
+});
+
+/** ---------- Types ---------- */
 export type CreateMedicineInput = z.infer<typeof CreateMedicineSchema>;
 export type UpdateMedicineInput = z.infer<typeof UpdateMedicineSchema>;
 export type CreateMedicineItemInput = z.infer<typeof CreateMedicineItemInputSchema>;
 export type PaginationQuery = z.infer<typeof PaginationQuerySchema>;
 
-// ---- Wrappers for validateRequest ----
+/** ---------- Wrappers for validateRequest ---------- */
 export const MedicineListReqSchema = z.object({ query: PaginationQuerySchema });
 export const MedicineCreateReqSchema = z.object({ body: CreateMedicineSchema });
 export const MedicineIdParamSchema = z.object({ params: z.object({ id: z.string().uuid() }) });
