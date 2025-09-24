@@ -55,10 +55,11 @@ export const CreatePrescriptionSchema = z.object({
 
 export type PaginationQuery = z.infer<typeof PaginationQuerySchema>;
 export const PaginationQuerySchema = z.object({
-	page: z.preprocess((val) => (typeof val === "string" ? Number(val) : val), z.number().min(1).default(1)).optional(),
-	pageSize: z
-		.preprocess((val) => (typeof val === "string" ? Number(val) : val), z.number().min(1).max(100).default(10))
-		.optional(),
+	page: z.preprocess((val) => (typeof val === "string" ? Number(val) : val), z.number().min(1).default(1)),
+	pageSize: z.preprocess(
+		(val) => (typeof val === "string" ? Number(val) : val),
+		z.number().min(1).max(100).default(10),
+	),
 });
 
 export interface PaginationMeta {
@@ -69,3 +70,8 @@ export interface PaginationMeta {
 	hasPrev: boolean;
 	hasNext: boolean;
 }
+
+export const PrescriptionListReqSchema = z.object({ query: PaginationQuerySchema });
+export const PrescriptionCreateReqSchema = z.object({ body: CreatePrescriptionSchema });
+export const PrescriptionIdParamSchema = z.object({ params: z.object({ id: z.string() }) });
+export const PrescriptionGetByIdReqSchema = z.object({ params: z.object({ id: z.string() }) });
