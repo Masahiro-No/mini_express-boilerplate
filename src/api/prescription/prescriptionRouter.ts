@@ -20,9 +20,13 @@ import { z } from "zod";
 import {
 	CreatePrescriptionItemInputSchema,
 	CreatePrescriptionSchema,
+	PrescriptionCreateReqSchema,
+	PrescriptionGetByIdReqSchema,
+	PrescriptionIdParamSchema,
 	PrescriptionListReqSchema,
 } from "@/api/prescription/prescriptionModel";
 import { createApiResponse } from "@/api-docs/openAPIResponseBuilders";
+import { validateRequest } from "@/common/utils/httpHandlers";
 import { prescriptionController } from "./prescriptionController";
 
 export const prescriptionRegistry = new OpenAPIRegistry();
@@ -37,7 +41,7 @@ prescriptionRegistry.registerPath({
 	responses: createApiResponse(z.array(CreatePrescriptionItemInputSchema), "Success"),
 });
 
-prescriptionRouter.get("/", prescriptionController.getPrescriptionByPage);
+prescriptionRouter.get("/", validateRequest(PrescriptionListReqSchema), prescriptionController.getPrescriptionByPage);
 
 prescriptionRegistry.registerPath({
 	method: "post",
@@ -47,7 +51,7 @@ prescriptionRegistry.registerPath({
 	responses: createApiResponse(z.array(CreatePrescriptionSchema), "Created"),
 });
 
-prescriptionRouter.post("/", prescriptionController.createPrescription);
+prescriptionRouter.post("/", validateRequest(PrescriptionCreateReqSchema), prescriptionController.createPrescription);
 
 prescriptionRegistry.registerPath({
 	method: "get",
@@ -59,7 +63,7 @@ prescriptionRegistry.registerPath({
 	responses: createApiResponse(CreatePrescriptionSchema, "Get by ID Success"),
 });
 
-prescriptionRouter.get("/:id", prescriptionController.getPrescriptionById);
+prescriptionRouter.get("/:id", validateRequest(PrescriptionIdParamSchema), prescriptionController.getPrescriptionById);
 
 prescriptionRegistry.registerPath({
 	method: "delete",
@@ -69,4 +73,8 @@ prescriptionRegistry.registerPath({
 	responses: createApiResponse(z.object({ message: z.string() }), "Deleted by ID Success"),
 });
 
-prescriptionRouter.delete("/:id", prescriptionController.deletePrescription);
+prescriptionRouter.delete(
+	"/:id",
+	validateRequest(PrescriptionGetByIdReqSchema),
+	prescriptionController.deletePrescription,
+);
